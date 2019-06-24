@@ -1,4 +1,4 @@
-FROM quay.octanner.io/developer/rubychrome:2.6-lithium-1.2
+FROM akkeris/rubychrome:2.6-lithium-1.2
 RUN apt-get update
 RUN apt-get install -y libkrb5-dev python python-pip
 RUN pip install awscli
