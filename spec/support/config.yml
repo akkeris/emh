@@ -1,0 +1,4 @@
+env: 'maru' #valid values are: production, staging, development
+logging: 'true' #valid values are: debug, info, warn, error, fatal
+log_level: 'info'
+browser: 'chrome'
