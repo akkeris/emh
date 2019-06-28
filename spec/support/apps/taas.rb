@@ -9,12 +9,45 @@ class Taas < AutomationFramework::Utilities
         expect(response.status).to eq 200
         response.body
     end
+    def get_test_list()
+        uri = '/v1/diagnostics'
+        headers = {}
+        response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
+        return response.body, response.status        
+    end
+    def get_test_info(testname)
+        uri = '/v1/diagnostic/'+testname
+        headers = {}
+        response = Faraday.new(ENV['APP_URL']).get uri,{}, headers
+        $stdout.puts response.body.to_s
+        return response.body, response.status
+    end
+    def update_test(diagnosticinfo)
+        uri = '/v1/diagnostic'
+        headers = {}
+        response = Faraday.new(ENV['APP_URL']).patch uri, diagnosticinfo.to_json, headers
+        return response.body, response.status
+    end        
+    def get_config(testname)
+        uri = '/v1/diagnostic/'+testname
+        headers = {}
+        response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
+        $stdout.puts JSON.parse(response.body)["env"]
+        return JSON.parse(response.body)["env"], response.status
+    end
+    def delete_config_var(testname, var)
+        uri = '/v1/diagnostic/'+testname+"/config/"+var
+        headers = {}
+        response = Faraday.new(ENV['APP_URL']).delete uri,{}, headers
+        $stdout.puts response.body.to_s
+        return response.body, response.status
+    end        
     def destroy_test(testname)
         uri = '/v1/diagnostic/'+testname
         headers = {}
         response = Faraday.new(ENV['APP_URL']).delete uri,{}, headers
         $stdout.puts response.body.to_s
-        response.body
+        return response.body
     end
     def add_config_var(testname, setname, varname, varvalue)
         uri = '/v1/diagnostic/'+testname+'/config'
