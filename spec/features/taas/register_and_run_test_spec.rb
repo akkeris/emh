@@ -38,7 +38,7 @@ feature 'register a test and run it', sauce: false do
   let(:destroybody) {app.taas.destroy_test(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])}
 
 
-  scenario 'register, run, and get logs',
+  scenario 'register test, get info, and list tests',
            type: 'contract', appserver: 'none', broken: false,
            development: true, staging: true, production: true do
 
@@ -71,6 +71,12 @@ feature 'register a test and run it', sauce: false do
     expect(JSON.parse(testinfo)["startdelay"]).to eq diagnosticinfo["startdelay"]
     expect(JSON.parse(testinfo)["slackchannel"]).to eq diagnosticinfo["slackchannel"]
 
+  end
+
+
+  scenario 'update test properties',
+           type: 'contract', appserver: 'none', broken: false,
+           development: true, staging: true, production: true do
     diagnosticinfo["startdelay"]=8   
     updatebody, updatestatus = app.taas.update_test(diagnosticinfo)
     expect(updatestatus).to eq 200
@@ -78,7 +84,11 @@ feature 'register a test and run it', sauce: false do
     $stdout.puts testinfo
     expect(testinfostatus).to be 200
     expect(JSON.parse(testinfo)["startdelay"]).to eq 8
+  end
 
+  scenario 'Set / Unset Config Vars',
+           type: 'contract', appserver: 'none', broken: false,
+           development: true, staging: true, production: true do
     $stdout.puts(JSON.parse(configsetbody))
     $stdout.puts(JSON.parse(configsetbody2))
     deleteconfigbody, deleteconfigstatus = app.taas.delete_config_var(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"], "MERP")
@@ -88,9 +98,12 @@ feature 'register a test and run it', sauce: false do
     $stdout.puts configbody.to_s
     expect(configstatus).to eq 200
     expect(configbody.to_s).to eq '[{"name"=>"APP_PATH", "value"=>"alwayspassui"}]'   
- 
+  end
 
 
+  scenario 'run test, get test run info, and get logs',
+           type: 'contract', appserver: 'none', broken: false,
+           development: true, staging: true, production: true do
     firsttime, overallstatus, runid = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
     releasebody
     $stdout.puts Time.now.utc    
@@ -119,7 +132,11 @@ feature 'register a test and run it', sauce: false do
      $stdout.puts logsbody, logsstatuscode 
      expect(logsbody).not_to be_empty
      expect(logsstatuscode).to eq 200
+ end
 
+  scenario 'delete test',
+           type: 'contract', appserver: 'none', broken: false,
+           development: true, staging: true, production: true do
      $stdout.puts JSON.parse(destroybody).to_s
      status = JSON.parse(destroybody)["status"].to_s
      expect(status).to eq("deleted")
