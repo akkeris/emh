@@ -105,16 +105,16 @@ feature 'register a test and run it', sauce: false do
            type: 'contract', appserver: 'none', broken: false,
            development: true, staging: true, production: true do
     firsttime, overallstatus, runid = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
+    
     releasebody
-    $stdout.puts Time.now.utc    
-    currenttime = Time.now.utc
     foundit = false
     successid = ""
+    $stdout.puts firsttime
     10.times do
            sleep 6
            latesttime, overallstatus, runid  = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
            $stdout.puts latesttime
-           if latesttime > firsttime and overallstatus=="success" then
+           if latesttime != firsttime and overallstatus=="success" then
                foundit = true
                successid = runid
                break
