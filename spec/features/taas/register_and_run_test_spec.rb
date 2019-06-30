@@ -77,6 +77,8 @@ feature 'register a test and run it', sauce: false do
   scenario 'update test properties',
            type: 'contract', appserver: 'none', broken: false,
            development: true, staging: true, production: true do
+    testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
+    diagnosticinfo["id"]=JSON.parse(testinfo)["id"]
     diagnosticinfo["startdelay"]=8   
     updatebody, updatestatus = app.taas.update_test(diagnosticinfo)
     expect(updatestatus).to eq 200
