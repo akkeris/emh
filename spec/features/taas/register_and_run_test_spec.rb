@@ -136,6 +136,45 @@ feature 'register a test and run it', sauce: false do
      expect(logsstatuscode).to eq 200
  end
 
+
+  scenario 'get audits',
+           type: 'contract', appserver: 'none', broken: false,
+           development: true, staging: true, production: true do
+    testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
+    diagnosticinfo=JSON.parse(testinfo)
+    auditsbody, auditstatus = app.taas.get_audits(diagnosticinfo)
+    audits = JSON.parse(auditsbody)
+    expect(auditstatus).to be 200
+    expect(audits.length).to eq  5
+    foundregister = false
+    foundupdate = false
+    foundvarset1 = false
+    foundvarset2 = false
+    foundvarunset = false
+    audits.each do |audit|
+         if audit["audittype"]=="register" && audit["auditkey"]=="hd-tdev-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
+           foundregister = true
+         end
+         if audit["audittype"]=="properties" && audit["auditkey"]=="hd-tdev-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
+           foundupdate = true
+         end
+         if audit["audittype"]=="configvarset" && audit["auditkey"]=="APP_PATH" && audit["newvalue"] == "alwayspassui" && audit["audituser"] != "" then
+           foundvarset1 = true
+         end
+         if audit["audittype"]=="configvarset" && audit["auditkey"]=="MERP" && audit["newvalue"] == "derp" && audit["audituser"] != "" then
+           foundvarset2 = true
+         end
+         if audit["audittype"]=="configvarunset" && audit["auditkey"]=="MERP" && audit["newvalue"] == "" && audit["audituser"] != "" then
+           foundvarunset = true
+         end
+    end
+    expect(foundregister).to be true
+    expect(foundupdate).to be true
+    expect(foundvarset1).to be true
+    expect(foundvarset2).to be true
+    expect(foundvarunset).to be true    
+  end
+
   scenario 'delete test',
            type: 'contract', appserver: 'none', broken: false,
            development: true, staging: true, production: true do
