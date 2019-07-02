@@ -28,9 +28,9 @@ $config = YAML.load_file('spec/support/config.yml') if File.exist?('spec/support
 
 # rubocop:disable Style/ConditionalAssignment
 if ENV['APP_ENV'].nil? && $config
-  app_env = $config['env'].upcase
+  app_env = $config['env']
 elsif ENV['APP_ENV'].nil? == false
-  app_env = ENV['APP_ENV'].upcase
+  app_env = ENV['APP_ENV']
 else
   app_env = 'MARU'
 end
@@ -78,6 +78,14 @@ RSpec.configure do |config|
     browser.manage.delete_all_cookies
     Capybara.reset_sessions!
     Capybara.current_session.driver.quit
+ end
+  case app_env
+  when
+    'ds1' then config.filter_run_excluding ds1: false
+  when
+    'maru' then config.filter_run_excluding maru: false
+  when
+    'bs1' then config.filter_run_excluding bs1: false
 end
 
 

@@ -11,9 +11,8 @@ module AutomationFramework
 
     def env
       $config = YAML.load_file('spec/support/config.yml') if File.exist?('spec/support/config.yml')
-      return @env = $config['env'].upcase if ENV['APP_ENV'].nil? && $config
-      return @env = ENV['APP_ENV'].upcase if ENV['APP_ENV'].nil? == false
-      @env = 'MARU'
+      return @env = $config['env'] if ENV['APP_ENV'].nil? && $config
+      return @env = ENV['APP_ENV'] if ENV['APP_ENV'].nil? == false
     end
     
     # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity

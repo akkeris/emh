@@ -11,7 +11,7 @@ class Taas < AutomationFramework::Utilities
         response.body
     end
     def get_test_list()
-        uri = '/v1/diagnostics'
+        uri = '/v1/diagnostics?simple=true'
         headers = {}
         headers["Authorization"] = "Bearer "+ENV["AUTH_TOKEN"]
         response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
@@ -38,7 +38,14 @@ class Taas < AutomationFramework::Utilities
         headers["Authorization"] = "Bearer "+ENV["AUTH_TOKEN"]
         response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
         $stdout.puts JSON.parse(response.body)["env"]
-        return JSON.parse(response.body)["env"], response.status
+        env=JSON.parse(response.body)["env"]
+        filtered = []
+        env.each do |var| 
+          if !var["name"].start_with?("DIAGNOSTIC_","TAAS_") then
+             filtered.push(var)
+          end
+        end
+        return filtered, response.status
     end
     def delete_config_var(testname, var)
         uri = '/v1/diagnostic/'+testname+"/config/"+var
@@ -83,7 +90,12 @@ class Taas < AutomationFramework::Utilities
         headers = {}
         headers["Authorization"] = "Bearer "+ENV["AUTH_TOKEN"]
         response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
-        latest = JSON.parse(response.body.to_s)["runs"][-1]
+        latest =""
+        if response.body.to_s =='{"runs":null}' then 
+           latest=JSON.parse('{"hrtimestamp":"2019-01-01T00:00:00"}')
+        else
+           latest = JSON.parse(response.body.to_s)["runs"][-1]
+        end
 	parsed_time = DateTime.strptime(latest["hrtimestamp"], '%Y-%m-%dT%H:%M:%S')
         return parsed_time, latest["overallstatus"], latest["id"]
     end

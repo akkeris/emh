@@ -4,26 +4,23 @@ app = AutomationFramework::Application.new
 appname = ENV['APPNAME']
 spacename = ENV['SPACENAME']
 image = ENV['IMAGE']
-
+slackchannel = ENV['SLACKCHANNEL']
 feature 'register a test and run it', sauce: false do
   let(:diagnosticinfo) do
-    case app.env
-    when 'MARU'
-      { 'app'=>'hd',
-        'space'=> 'tdev',
+      { 'app'=>appname,
+        'space'=> spacename,
         'action'=>'release',
         'result'=>'succeeded',
-        'image'=> 'murrayres/bashir:latest',
-        'job'=>'hd-tdev',
+        'image'=> image,
+        'job'=>appname+"-"+spacename,
         'jobspace'=>'taas',
         'pipelinename'=>'manual',
         'transitionfrom'=>'manual',
         'transitionto'=>'manual',
-        'timeout'=> 60,
+        'timeout'=> 180,
         'startdelay'=> 7,
-        'slackchannel'=>'@murray.resinski'
+        'slackchannel'=>slackchannel
       }
-    end
   end
   let(:registerbody) { app.taas.register_test(diagnosticinfo) } 
 
@@ -40,7 +37,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'register test, get info, and list tests',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: true, production: true do
 
     expect(JSON.parse(registerbody)).not_to be_empty
 
@@ -76,7 +73,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'update test properties',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: true, production: true do
     testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
     diagnosticinfo["id"]=JSON.parse(testinfo)["id"]
     diagnosticinfo["startdelay"]=8   
@@ -90,7 +87,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'Set / Unset Config Vars',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: true, production: true do
     $stdout.puts(JSON.parse(configsetbody))
     $stdout.puts(JSON.parse(configsetbody2))
     deleteconfigbody, deleteconfigstatus = app.taas.delete_config_var(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"], "MERP")
@@ -105,7 +102,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'run test, get test run info, and get logs',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: true, production: true do
     firsttime, overallstatus, runid = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
     
     releasebody
@@ -139,7 +136,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'get audits',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: false, ds1: false do
     testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
     diagnosticinfo=JSON.parse(testinfo)
     auditsbody, auditstatus = app.taas.get_audits(diagnosticinfo)
@@ -152,10 +149,10 @@ feature 'register a test and run it', sauce: false do
     foundvarset2 = false
     foundvarunset = false
     audits.each do |audit|
-         if audit["audittype"]=="register" && audit["auditkey"]=="hd-tdev-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
+         if audit["audittype"]=="register" && audit["auditkey"]==appname+"-"+spacename+"-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
            foundregister = true
          end
-         if audit["audittype"]=="properties" && audit["auditkey"]=="hd-tdev-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
+         if audit["audittype"]=="properties" && audit["auditkey"]==appname+"-"+spacename+"-taas" && audit["newvalue"] != "" && audit["audituser"] != "" then
            foundupdate = true
          end
          if audit["audittype"]=="configvarset" && audit["auditkey"]=="APP_PATH" && audit["newvalue"] == "alwayspassui" && audit["audituser"] != "" then
@@ -177,7 +174,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'delete test',
            type: 'contract', appserver: 'none', broken: false,
-           development: true, staging: true, production: true do
+           maru: true, bs1: true, production: true do
      $stdout.puts JSON.parse(destroybody).to_s
      status = JSON.parse(destroybody)["status"].to_s
      expect(status).to eq("deleted")
@@ -197,11 +194,8 @@ feature 'register a test and run it', sauce: false do
 
 before(:all) do
     $stdout.puts "running reset"
-    case app.env
-    when 'MARU'
-      JSON.parse(app.taas.destroy_test("hd-tdev-taas"))
-      $stdout.puts "done with reset"
-    end 
-   end
+    JSON.parse(app.taas.destroy_test(appname+"-"+spacename+"-taas"))
+    $stdout.puts "done with reset"
+end
 end
 
