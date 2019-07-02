@@ -100,7 +100,7 @@ feature 'register a test and run it', sauce: false do
   end
 
 
-  scenario 'run test, get test run info, and get logs',
+  scenario 'run test, get test run info, and get logs and artifacts',
            type: 'contract', appserver: 'none', broken: false,
            maru: true, bs1: true, production: true do
     firsttime, overallstatus, runid = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
@@ -131,12 +131,18 @@ feature 'register a test and run it', sauce: false do
      $stdout.puts logsbody, logsstatuscode 
      expect(logsbody).not_to be_empty
      expect(logsstatuscode).to eq 200
+
+     artifactsbody, artifactsstatus = app.taas.get_artifacts(successid)
+     $stdout.puts artifactsbody, artifactsstatus
+     expect(artifactsbody).not_to be_empty
+     expect(artifactsstatus).to eq 200     
+
  end
 
 
   scenario 'get audits',
            type: 'contract', appserver: 'none', broken: false,
-           maru: true, bs1: false, ds1: false do
+           maru: true, bs1: true, ds1: false do
     testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
     diagnosticinfo=JSON.parse(testinfo)
     auditsbody, auditstatus = app.taas.get_audits(diagnosticinfo)

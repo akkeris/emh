@@ -123,6 +123,15 @@ class Taas < AutomationFramework::Utilities
         response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
         return response.body.to_s, response.status
     end
+    def get_artifacts(runid)
+        uri = '/v1/artifacts/'+runid+"/"
+        $stdout.puts uri
+        headers = {}
+        headers["Authorization"] = "Bearer "+ENV["AUTH_TOKEN"]
+        response = Faraday.new(ENV['APP_URL']).get uri, {}, headers
+        $stdout.puts response.body.to_s
+        return response.body.to_s, response.status
+    end
    
   end
 
