@@ -109,7 +109,7 @@ feature 'register a test and run it', sauce: false do
     foundit = false
     successid = ""
     $stdout.puts firsttime
-    10.times do
+    20.times do
            sleep 6
            latesttime, overallstatus, runid  = app.taas.get_latest_test_time_and_status(diagnosticinfo["job"],diagnosticinfo["jobspace"])
            $stdout.puts latesttime
@@ -143,7 +143,7 @@ feature 'register a test and run it', sauce: false do
 
   scenario 'get audits',
            type: 'contract', appserver: 'none', broken: false,
-           maru: true, bs1: true, ds1: false do
+           maru: true, bs1: true, ds1: true do
     testinfo, testinfostatus = app.taas.get_test_info(diagnosticinfo["job"]+"-"+diagnosticinfo["jobspace"])
     diagnosticinfo=JSON.parse(testinfo)
     auditsbody, auditstatus = app.taas.get_audits(diagnosticinfo)

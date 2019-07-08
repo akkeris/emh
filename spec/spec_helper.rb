@@ -59,7 +59,7 @@ RSpec.configure do |config|
   config.formatter = :documentation
   config.verbose_retry = true
   config.display_try_failure_messages = true
-  config.default_retry_count = 2
+  config.default_retry_count = 1
   config.default_sleep_interval = 2
   config.filter_run_excluding broken: true
   Capybara.register_driver :logging_selenium_chrome do |app|
