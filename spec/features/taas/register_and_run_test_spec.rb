@@ -134,10 +134,10 @@ feature 'register a test and run it', sauce: false do
 
      artifactsbody, artifactsstatus = app.taas.get_artifacts(successid)
      $stdout.puts artifactsbody, artifactsstatus
+     expect(artifactsstatus).to eq 200
      expect(artifactsbody).not_to be_empty
+     expect(artifactsbody).to include ('describe.txt')
      expect(artifactsbody).to include ('href="ss.png"')
-     expect(artifactsstatus).to eq 200     
-
  end
 
 
